@@ -17,7 +17,7 @@ impl Game {
         let document = window.document().unwrap();
 
         let canvas = document
-            .get_element_by_id(canvas_id)
+            .get_element_by_id("screen")
             .unwrap()
             .dyn_into::<HtmlCanvasElement>()?;
 

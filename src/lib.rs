@@ -37,19 +37,8 @@ impl Game {
     }
 
     pub fn frame(&self, dt: f64) {
-        unsafe { TIME += dt };
-
-        let w = self.ctx.canvas().unwrap().width() as f64;
-        let h = self.ctx.canvas().unwrap().height() as f64;
-
-        self.ctx.set_fill_style(&"#111".into());
-        self.ctx.fill_rect(0.0, 0.0, w, h);
-
-        let x = 100.0 + unsafe { TIME }.sin() * 50.0;
-        let y = h / 2.0;
-
-        self.ctx.set_fill_style(&"#4af".into());
-        self.ctx.fill_rect(x, y, 50.0, 50.0);
+        self.ctx.set_fill_style(&"red".into());
+        self.ctx.fill_rect(0.0, 0.0, 200.0, 200.0);
     }
 
     pub fn send(&self, msg: &str) {

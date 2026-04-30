@@ -1,41 +1,63 @@
-name: Build Rust WASM
+name: Build and Deploy WAFFLES
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Install Rust
-      uses: dtolnay/rust-toolchain@stable
-      with:
-        targets: wasm32-unknown-unknown
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
 
-    - name: Cache cargo
-      uses: Swatinem/rust-cache@v2
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
 
-    - name: Install wasm-bindgen
-      run: cargo install wasm-bindgen-cli
+      - name: Install wasm-bindgen
+        run: cargo install wasm-bindgen-cli
 
-    - name: Build WASM
-      run: cargo build --release --target wasm32-unknown-unknown
+      - name: Build WASM
+        run: cargo build --release --target wasm32-unknown-unknown
 
-    - name: Run wasm-bindgen
-      run: |
-        wasm-bindgen \
-          --target web \
-          --out-dir dist \
-          target/wasm32-unknown-unknown/release/game.wasm
+      - name: Create dist directory
+        run: mkdir dist
 
-    - name: Upload built site (artifact)
-      uses: actions/upload-artifact@v4
-      with:
-        name: site
-        path: web/
+      - name: Copy static files
+        run: |
+          cp web/index.html dist/
+          cp web/main.js dist/
+
+      - name: Generate JS + WASM bindings
+        run: |
+          wasm-bindgen \
+            --target web \
+            --out-dir dist \
+            target/wasm32-unknown-unknown/release/game.wasm
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4

@@ -31,7 +31,7 @@ jobs:
       run: |
         wasm-bindgen \
           --target web \
-          --out-dir web \
+          --out-dir dist \
           target/wasm32-unknown-unknown/release/game.wasm
 
     - name: Upload built site (artifact)
